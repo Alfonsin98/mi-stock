@@ -30,7 +30,7 @@
   </section>
 
   <section class="toolbar">
-    <input id="search" type="search" placeholder="🔍 Buscar producto, código, categoría..." autocomplete="off">
+    <input id="search" type="search" placeholder="🔍 Buscar producto o código..." autocomplete="off">
     <div class="toolbar-row">
       <select id="catFilter" aria-label="Categoría">
         <option value="">Todas las categorías</option>
@@ -50,13 +50,14 @@
   <main id="list" class="list"></main>
   <p id="empty" class="empty" hidden></p>
 
-  <button id="addBtn" class="fab" aria-label="Agregar producto">＋</button>
+  <button id="addBtn" class="fab" aria-label="Agregar producto"><span class="fab-icon">＋</span><span class="fab-label">Agregar producto</span></button>
 
   <!-- Alta / edición -->
   <dialog id="editDialog">
     <form id="editForm" novalidate>
-      <h2 id="editTitle">Nuevo producto</h2>
+      <h2 id="editTitle" tabindex="-1" autofocus>Nuevo producto</h2>
 
+      <div class="photo-col">
       <div class="photo-box">
         <img id="photoPreview" alt="Foto del producto" hidden>
         <span id="photoPlaceholder">Sin foto</span>
@@ -70,7 +71,9 @@
         </label>
         <button type="button" id="photoRemove" class="btn ghost">Quitar</button>
       </div>
+      </div>
 
+      <div class="fields-col">
       <label>Nombre *
         <input name="name" required maxlength="120" autocomplete="off">
       </label>
@@ -103,6 +106,7 @@
       <label>Notas
         <textarea name="notes" rows="2" maxlength="500"></textarea>
       </label>
+      </div>
 
       <div class="dialog-actions">
         <button type="button" id="deleteBtn" class="btn danger">Eliminar</button>
@@ -116,7 +120,7 @@
   <!-- Menú -->
   <dialog id="menuDialog">
     <div class="menu">
-      <h2>Opciones</h2>
+      <h2 tabindex="-1" autofocus>Opciones</h2>
       <button id="installBtn" class="btn primary" hidden>⬇️ Instalar app</button>
       <p id="iosHint" class="hint" hidden>En iPhone: tocá <b>Compartir</b> → <b>Agregar a inicio</b> para instalarla.</p>
       <button id="exportBtn" class="btn">💾 Descargar respaldo (con fotos)</button>
@@ -160,3 +164,4 @@
   <script src="app.js"></script>
 </body>
 </html>
+

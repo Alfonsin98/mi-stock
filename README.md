@@ -38,3 +38,4 @@ Al modificar archivos, subí el número de `VERSION` en [`sw.js`](sw.js) (por ej
 python -m http.server 8080
 ```
 y abrir http://localhost:8080
+

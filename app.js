@@ -5,7 +5,7 @@
    Datos guardados en IndexedDB (sólo en este dispositivo)
    ========================================================= */
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.0';
 const $ = (s) => document.querySelector(s);
 
 const state = {
@@ -200,7 +200,7 @@ function card(p) {
       <h3>${esc(p.name)}${badge}</h3>
       ${meta ? `<div class="meta">${esc(meta)}</div>` : ''}
       <div class="price">${money(p.price)}</div>
-      ${p.cost ? `<div class="meta">Costo ${money(p.cost)} · ${esc(profitText(p.price, p.cost))}</div>` : ''}
+      ${p.cost ? `<div class="meta cost">Costo ${money(p.cost)} · ${esc(profitText(p.price, p.cost))}</div>` : ''}
     </div>
     <div class="qty">
       <button class="qbtn" data-act="inc" aria-label="Sumar uno">+</button>
@@ -639,3 +639,4 @@ if ('serviceWorker' in navigator) {
   }
   render();
 })();
+
