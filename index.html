@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mi Stock</title>
+  <meta name="description" content="Control de stock offline con fotos y precios">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Mi Stock">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>📦 Mi Stock</h1>
+    <span id="netStatus" class="net" hidden>Sin conexión</span>
+    <button id="menuBtn" class="icon-btn" aria-label="Menú">⋮</button>
+  </header>
+
+  <section class="summary" aria-label="Resumen">
+    <div><span class="label">Productos</span><strong id="sumItems">0</strong></div>
+    <div><span class="label">Unidades</span><strong id="sumUnits">0</strong></div>
+    <div><span class="label">Valor costo</span><strong id="sumCost">$0</strong></div>
+    <div><span class="label">Valor venta</span><strong id="sumValue">$0</strong></div>
+  </section>
+
+  <section class="toolbar">
+    <input id="search" type="search" placeholder="🔍 Buscar producto, código, categoría..." autocomplete="off">
+    <div class="toolbar-row">
+      <select id="catFilter" aria-label="Categoría">
+        <option value="">Todas las categorías</option>
+      </select>
+      <select id="sort" aria-label="Ordenar">
+        <option value="recent">Recientes</option>
+        <option value="name">Nombre A-Z</option>
+        <option value="priceAsc">Precio ↑</option>
+        <option value="priceDesc">Precio ↓</option>
+        <option value="qtyAsc">Menos stock</option>
+        <option value="qtyDesc">Más stock</option>
+      </select>
+      <button id="lowFilter" class="chip" aria-pressed="false" title="Mostrar sólo stock bajo o agotado">⚠️ Bajo</button>
+    </div>
+  </section>
+
+  <main id="list" class="list"></main>
+  <p id="empty" class="empty" hidden></p>
+
+  <button id="addBtn" class="fab" aria-label="Agregar producto">＋</button>
+
+  <!-- Alta / edición -->
+  <dialog id="editDialog">
+    <form id="editForm" novalidate>
+      <h2 id="editTitle">Nuevo producto</h2>
+
+      <div class="photo-box">
+        <img id="photoPreview" alt="Foto del producto" hidden>
+        <span id="photoPlaceholder">Sin foto</span>
+      </div>
+      <div class="photo-actions">
+        <label class="btn">📷 Cámara
+          <input type="file" accept="image/*" capture="environment" id="photoCamera" hidden>
+        </label>
+        <label class="btn">🖼️ Galería
+          <input type="file" accept="image/*" id="photoGallery" hidden>
+        </label>
+        <button type="button" id="photoRemove" class="btn ghost">Quitar</button>
+      </div>
+
+      <label>Nombre *
+        <input name="name" required maxlength="120" autocomplete="off">
+      </label>
+      <div class="row">
+        <label>Categoría
+          <input name="category" list="catList" maxlength="60" autocomplete="off">
+        </label>
+        <label>Código / SKU
+          <input name="sku" maxlength="60" autocomplete="off">
+        </label>
+      </div>
+      <datalist id="catList"></datalist>
+      <div class="row">
+        <label>Precio costo
+          <input name="cost" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+        </label>
+        <label>Precio venta *
+          <input name="price" type="number" inputmode="decimal" min="0" step="any" placeholder="0" required>
+        </label>
+      </div>
+      <p id="marginInfo" class="hint"></p>
+      <div class="row">
+        <label>Cantidad
+          <input name="qty" type="number" inputmode="numeric" min="0" step="1" value="0">
+        </label>
+        <label>Avisar si quedan ≤
+          <input name="minQty" type="number" inputmode="numeric" min="0" step="1" placeholder="(opcional)">
+        </label>
+      </div>
+      <label>Notas
+        <textarea name="notes" rows="2" maxlength="500"></textarea>
+      </label>
+
+      <div class="dialog-actions">
+        <button type="button" id="deleteBtn" class="btn danger">Eliminar</button>
+        <span class="spacer"></span>
+        <button type="button" id="cancelBtn" class="btn ghost">Cancelar</button>
+        <button type="submit" class="btn primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Menú -->
+  <dialog id="menuDialog">
+    <div class="menu">
+      <h2>Opciones</h2>
+      <button id="installBtn" class="btn primary" hidden>⬇️ Instalar app</button>
+      <p id="iosHint" class="hint" hidden>En iPhone: tocá <b>Compartir</b> → <b>Agregar a inicio</b> para instalarla.</p>
+      <button id="exportBtn" class="btn">💾 Descargar respaldo (con fotos)</button>
+      <button id="shareBtn" class="btn" hidden>📤 Compartir respaldo</button>
+      <label class="btn">📥 Importar respaldo
+        <input type="file" id="importInput" accept="application/json,.json" hidden>
+      </label>
+      <button id="csvBtn" class="btn">📊 Exportar planilla (CSV/Excel)</button>
+      <label class="inline">Moneda
+        <select id="currencySel">
+          <option value="ARS">ARS – Peso argentino</option>
+          <option value="USD">USD – Dólar</option>
+          <option value="UYU">UYU – Peso uruguayo</option>
+          <option value="CLP">CLP – Peso chileno</option>
+          <option value="PYG">PYG – Guaraní</option>
+          <option value="BOB">BOB – Boliviano</option>
+          <option value="PEN">PEN – Sol</option>
+          <option value="COP">COP – Peso colombiano</option>
+          <option value="MXN">MXN – Peso mexicano</option>
+          <option value="BRL">BRL – Real</option>
+          <option value="EUR">EUR – Euro</option>
+        </select>
+      </label>
+      <p id="storageInfo" class="hint"></p>
+      <p class="hint">Los datos se guardan sólo en este dispositivo. Hacé respaldos seguido.</p>
+      <button id="wipeBtn" class="btn danger ghost">🗑️ Borrar todo</button>
+      <button id="menuClose" class="btn ghost">Cerrar</button>
+    </div>
+  </dialog>
+
+  <!-- Visor de foto -->
+  <dialog id="viewDialog" class="viewer">
+    <img id="viewImg" alt="">
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden>
+    <span id="toastMsg"></span>
+    <button id="toastAction" class="btn small" hidden></button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
