@@ -142,6 +142,7 @@
         <input type="file" id="importInput" accept="application/json,.json" hidden>
       </label>
       <button id="csvBtn" class="btn">📊 Exportar planilla (CSV/Excel)</button>
+      <button id="updateBtn" class="btn">🔄 Buscar actualización</button>
       <label class="inline">Moneda
         <select id="currencySel">
           <option value="ARS">ARS – Peso argentino</option>
@@ -158,7 +159,7 @@
         </select>
       </label>
       <p id="storageInfo" class="hint"></p>
-      <p class="hint">Los datos se guardan sólo en este dispositivo. Hacé respaldos seguido.</p>
+      <p class="hint">Los datos se guardan en este dispositivo y <b>se conservan al actualizar</b>. Hacé respaldos seguido.</p>
       <button id="wipeBtn" class="btn danger ghost">🗑️ Borrar todo</button>
       <button id="menuClose" class="btn ghost">Cerrar</button>
     </div>

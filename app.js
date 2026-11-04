@@ -5,7 +5,7 @@
    Datos guardados en IndexedDB (sólo en este dispositivo)
    ========================================================= */
 
-const APP_VERSION = '1.2.0';
+const APP_VERSION = '1.3.0';
 const $ = (s) => document.querySelector(s);
 
 const state = {
@@ -627,35 +627,114 @@ function updateNet() { $('#netStatus').hidden = navigator.onLine; }
 window.addEventListener('online', updateNet);
 window.addEventListener('offline', updateNet);
 
-/* ---------- Service worker ---------- */
+/* ---------- Service worker y Actualizaciones ---------- */
+let swRegistration = null;
+
+async function checkForUpdates(manual = false) {
+  if (!('serviceWorker' in navigator)) {
+    if (manual) toast('Navegador sin soporte de Service Worker');
+    return;
+  }
+  if (!navigator.onLine) {
+    if (manual) toast('Sin conexión para buscar actualizaciones');
+    return;
+  }
+
+  const btn = $('#updateBtn');
+  if (manual && btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳ Buscando...';
+  }
+
+  try {
+    const reg = swRegistration || (await navigator.serviceWorker.getRegistration());
+    if (!reg) {
+      if (manual) toast('No se encontró el Service Worker');
+      return;
+    }
+
+    // Consulta al servidor si hay cambios en sw.js
+    await reg.update();
+
+    if (reg.waiting) {
+      toast('Actualización lista', {
+        label: 'Reiniciar',
+        fn: () => reg.waiting.postMessage('SKIP_WAITING'),
+      });
+      reg.waiting.postMessage('SKIP_WAITING');
+      return;
+    }
+
+    if (reg.installing) {
+      toast('Descargando actualización...');
+      reg.installing.addEventListener('statechange', (e) => {
+        if (e.target.state === 'installed') {
+          e.target.postMessage('SKIP_WAITING');
+        }
+      });
+      return;
+    }
+
+    if (manual) {
+      toast(`✅ La app está al día (v${APP_VERSION})`);
+    }
+  } catch (err) {
+    console.warn('Error al verificar actualización:', err);
+    if (manual) toast('No se pudo verificar la actualización');
+  } finally {
+    if (manual && btn) {
+      btn.disabled = false;
+      btn.textContent = '🔄 Buscar actualización';
+    }
+  }
+}
+
 if ('serviceWorker' in navigator) {
   const hadController = !!navigator.serviceWorker.controller;
   let refreshing = false;
+
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     if (!hadController || refreshing) return;
     refreshing = true;
     location.reload();
   });
+
   window.addEventListener('load', async () => {
     try {
-      const reg = await navigator.serviceWorker.register('./sw.js');
+      swRegistration = await navigator.serviceWorker.register('./sw.js');
+
       const offerUpdate = (worker) => toast('Hay una nueva versión', {
         label: 'Actualizar',
         fn: () => worker.postMessage('SKIP_WAITING'),
       });
-      if (reg.waiting && navigator.serviceWorker.controller) offerUpdate(reg.waiting);
-      reg.addEventListener('updatefound', () => {
-        const w = reg.installing;
+
+      if (swRegistration.waiting && navigator.serviceWorker.controller) {
+        offerUpdate(swRegistration.waiting);
+      }
+
+      swRegistration.addEventListener('updatefound', () => {
+        const w = swRegistration.installing;
         if (!w) return;
         w.addEventListener('statechange', () => {
-          if (w.state === 'installed' && navigator.serviceWorker.controller) offerUpdate(w);
+          if (w.state === 'installed' && navigator.serviceWorker.controller) {
+            offerUpdate(w);
+          }
         });
       });
     } catch (err) {
       console.warn('SW no registrado', err);
     }
   });
+
+  // Al volver a la app (visibilidad/foco), chequear silenciosamente si hay actualización
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && navigator.onLine) {
+      checkForUpdates(false);
+    }
+  });
 }
+
+$('#updateBtn').addEventListener('click', () => checkForUpdates(true));
 
 /* ---------- Inicio ---------- */
 (async function init() {

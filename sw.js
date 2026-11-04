@@ -1,7 +1,7 @@
 /* Service worker de Mi Stock.
    IMPORTANTE: al publicar cambios, subí el número de VERSION
    para que los teléfonos descarguen la versión nueva. */
-const VERSION = 'v1.2.0';
+const VERSION = 'v1.3.0';
 const CACHE = `mi-stock-${VERSION}`;
 const ASSETS = [
   './',
@@ -16,6 +16,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
 });
 
@@ -37,12 +38,22 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
-  // Navegación: siempre servir la app desde caché (funciona sin internet)
+  // Navegación: si hay red, busca versión fresca y actualiza caché; si no hay red, sirve de caché (offline)
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
+      try {
+        const fresh = await fetch(req);
+        if (fresh && fresh.ok) {
+          const c = await caches.open(CACHE);
+          c.put('./index.html', fresh.clone());
+          return fresh;
+        }
+      } catch {
+        // Sin red o timeout: usar versión en caché
+      }
       const cached = await caches.match('./index.html', { ignoreSearch: true });
       if (cached) return cached;
-      try { return await fetch(req); } catch { return new Response('Sin conexión', { status: 503 }); }
+      return new Response('Sin conexión', { status: 503 });
     })());
     return;
   }

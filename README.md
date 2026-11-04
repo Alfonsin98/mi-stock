@@ -30,7 +30,9 @@ PWA (aplicación web instalable) para llevar el **stock de productos con fotos y
 
 ## Actualizar la app
 
-Al modificar archivos, subí el número de `VERSION` en [`sw.js`](sw.js) (por ejemplo `v1.0.1`) y hacé push. Los teléfonos verán el aviso **"Hay una nueva versión → Actualizar"**. Los datos guardados no se pierden al actualizar.
+- Desde la app: en el menú **⋮ (Opciones)** tocá **"🔄 Buscar actualización"**. Si hay cambios en GitHub se descargan solos y se recarga la app.
+- También se verifica automáticamente cada vez que abrís la app con conexión a internet.
+- **Tus productos, fotos y precios nunca se pierden al actualizar** (están guardados de forma segura en la base de datos local del dispositivo).
 
 ## Probar en la PC
 
