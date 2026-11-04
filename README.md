@@ -4,7 +4,7 @@ PWA (aplicación web instalable) para llevar el **stock de productos con fotos y
 
 ## Funciones
 
-- Alta / edición / eliminación de productos con **foto** (cámara o galería), nombre, categoría, código, precio de costo, precio de venta, cantidad, stock mínimo y notas.
+- Alta / edición / eliminación de productos con **foto** (cámara o galería), nombre, categoría, talla (S, M, L, XL...), precio de costo, precio de venta, cantidad, stock mínimo y notas.
 - Botones **＋ / −** para ajustar el stock rápido (tocando el número se escribe la cantidad exacta).
 - Búsqueda, filtro por categoría, filtro de **stock bajo/agotado** y orden por nombre, precio o cantidad.
 - Resumen: cantidad de productos, unidades, **valor total a costo y a precio de venta**, ganancia por producto.

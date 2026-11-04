@@ -1,7 +1,7 @@
 /* Service worker de Mi Stock.
    IMPORTANTE: al publicar cambios, subí el número de VERSION
    para que los teléfonos descarguen la versión nueva. */
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.2.0';
 const CACHE = `mi-stock-${VERSION}`;
 const ASSETS = [
   './',

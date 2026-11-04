@@ -5,7 +5,7 @@
    Datos guardados en IndexedDB (sólo en este dispositivo)
    ========================================================= */
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.2.0';
 const $ = (s) => document.querySelector(s);
 
 const state = {
@@ -181,7 +181,7 @@ function filtered() {
   return state.products
     .filter((p) => (!cat || p.category === cat)
       && (!state.onlyLow || stockStatus(p))
-      && (!q || normalize([p.name, p.category, p.sku, p.notes].join(' ')).includes(q)))
+      && (!q || normalize([p.name, p.category, p.size || p.sku, p.notes].join(' ')).includes(q)))
     .sort(sorters[$('#sort').value] || sorters.recent);
 }
 
@@ -191,7 +191,8 @@ function card(p) {
   el.className = 'card' + (status ? ' ' + status : '');
   el.dataset.id = p.id;
   const url = photoUrl(p);
-  const meta = [p.category, p.sku].filter(Boolean).join(' · ');
+  const sizeVal = p.size || p.sku;
+  const meta = [p.category, sizeVal ? `Talla ${sizeVal}` : ''].filter(Boolean).join(' · ');
   const badge = status === 'out' ? '<span class="badge out">Agotado</span>'
     : status === 'low' ? '<span class="badge low">Bajo</span>' : '';
   el.innerHTML = `
@@ -297,6 +298,15 @@ function updateMarginInfo() {
   $('#marginInfo').textContent = profitText(num(F('price').value), num(F('cost').value));
 }
 
+function updateSizeButtons(val) {
+  const norm = String(val || '').trim().toUpperCase();
+  document.querySelectorAll('.size-btn').forEach((btn) => {
+    const match = btn.dataset.val.toUpperCase() === norm;
+    btn.classList.toggle('active', match);
+    btn.setAttribute('aria-pressed', String(match));
+  });
+}
+
 function openEdit(p) {
   state.editingId = p ? p.id : null;
   state.photoBlob = undefined;
@@ -306,7 +316,9 @@ function openEdit(p) {
   if (p) {
     F('name').value = p.name;
     F('category').value = p.category || '';
-    F('sku').value = p.sku || '';
+    const s = p.size || p.sku || '';
+    F('size').value = s;
+    updateSizeButtons(s);
     F('cost').value = p.cost || '';
     F('price').value = p.price;
     F('qty').value = p.qty;
@@ -315,6 +327,8 @@ function openEdit(p) {
   } else {
     // Mantener la categoría filtrada como sugerencia
     F('category').value = $('#catFilter').value;
+    F('size').value = '';
+    updateSizeButtons('');
   }
   setPreview(p ? p.photo : null);
   updateMarginInfo();
@@ -349,11 +363,13 @@ form.addEventListener('submit', async (e) => {
 
   const existing = state.products.find((x) => x.id === state.editingId);
   const now = Date.now();
+  const sizeVal = (F('size')?.value || '').trim();
   const p = {
     ...(existing || { id: uid(), createdAt: now, photo: null }),
     name,
     category: F('category').value.trim(),
-    sku: F('sku').value.trim(),
+    size: sizeVal,
+    sku: sizeVal, // compatibilidad retroactiva
     cost: num(F('cost').value),
     price: num(F('price').value),
     qty: int(F('qty').value),
@@ -395,6 +411,21 @@ $('#photoGallery').addEventListener('change', onPhotoChosen);
 $('#photoRemove').addEventListener('click', () => { state.photoBlob = null; setPreview(null); });
 F('price').addEventListener('input', updateMarginInfo);
 F('cost').addEventListener('input', updateMarginInfo);
+F('size').addEventListener('input', (e) => updateSizeButtons(e.target.value));
+
+document.querySelectorAll('.size-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const current = (F('size').value || '').trim().toUpperCase();
+    const val = (btn.dataset.val || '').toUpperCase();
+    if (current === val) {
+      F('size').value = '';
+      updateSizeButtons('');
+    } else {
+      F('size').value = btn.dataset.val;
+      updateSizeButtons(btn.dataset.val);
+    }
+  });
+});
 
 /* ---------- Lista: eventos ---------- */
 $('#list').addEventListener('click', (e) => {
@@ -489,7 +520,8 @@ $('#importInput').addEventListener('change', async (e) => {
         id: String(p.id),
         name: String(p.name),
         category: p.category || '',
-        sku: p.sku || '',
+        size: p.size || p.sku || '',
+        sku: p.size || p.sku || '',
         cost: num(p.cost),
         price: num(p.price),
         qty: int(p.qty),
@@ -520,9 +552,9 @@ $('#csvBtn').addEventListener('click', () => {
     return /[;"\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
   };
   const dec = (n) => String(Number(n) || 0).replace('.', ',');
-  const head = ['Nombre', 'Categoría', 'Código', 'Precio costo', 'Precio venta', 'Cantidad', 'Stock mínimo', 'Valor costo', 'Valor venta', 'Notas'];
+  const head = ['Nombre', 'Categoría', 'Talla', 'Precio costo', 'Precio venta', 'Cantidad', 'Stock mínimo', 'Valor costo', 'Valor venta', 'Notas'];
   const rows = [...state.products].sort(sorters.name).map((p) => [
-    p.name, p.category, p.sku, dec(p.cost), dec(p.price), p.qty, p.minQty ?? '',
+    p.name, p.category, p.size || p.sku || '', dec(p.cost), dec(p.price), p.qty, p.minQty ?? '',
     dec(p.qty * (p.cost || 0)), dec(p.qty * p.price), p.notes,
   ]);
   const csv = '\uFEFF' + [head, ...rows].map((r) => r.map(cell).join(';')).join('\r\n');

@@ -30,7 +30,7 @@
   </section>
 
   <section class="toolbar">
-    <input id="search" type="search" placeholder="🔍 Buscar producto o código..." autocomplete="off">
+    <input id="search" type="search" placeholder="🔍 Buscar producto, talla, categoría..." autocomplete="off">
     <div class="toolbar-row">
       <select id="catFilter" aria-label="Categoría">
         <option value="">Todas las categorías</option>
@@ -81,9 +81,22 @@
         <label>Categoría
           <input name="category" list="catList" maxlength="60" autocomplete="off">
         </label>
-        <label>Código / SKU
-          <input name="sku" maxlength="60" autocomplete="off">
-        </label>
+        <div class="field-size">
+          <label for="sizeInput">Talla</label>
+          <input name="size" id="sizeInput" list="sizeList" maxlength="30" placeholder="Ej: M" autocomplete="off">
+          <div class="size-chips" role="group" aria-label="Tallas por defecto">
+            <button type="button" class="size-btn" data-val="S">S</button>
+            <button type="button" class="size-btn" data-val="M">M</button>
+            <button type="button" class="size-btn" data-val="L">L</button>
+            <button type="button" class="size-btn" data-val="XL">XL</button>
+          </div>
+          <datalist id="sizeList">
+            <option value="S"></option>
+            <option value="M"></option>
+            <option value="L"></option>
+            <option value="XL"></option>
+          </datalist>
+        </div>
       </div>
       <datalist id="catList"></datalist>
       <div class="row">

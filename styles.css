@@ -226,7 +226,19 @@ dialog h2 { margin: 0; font-size: 1.15rem; }
 .photo-col, .fields-col { display: grid; gap: 10px; align-content: start; min-width: 0; }
 label { display: grid; gap: 4px; font-size: .85rem; color: var(--muted); }
 label.inline { grid-template-columns: auto 1fr; align-items: center; gap: 10px; }
-.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start; }
+.field-size { display: grid; gap: 4px; min-width: 0; }
+.field-size label { font-size: .85rem; color: var(--muted); }
+.size-chips { display: flex; gap: 4px; margin-top: 2px; }
+.size-btn {
+  flex: 1; min-height: 32px; padding: 2px 4px; font-size: .85rem; font-weight: 700;
+  border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);
+  cursor: pointer; transition: all .15s ease; text-align: center; line-height: 1;
+}
+.size-btn:hover { border-color: var(--brand-2); }
+.size-btn.active, .size-btn[aria-pressed="true"] {
+  background: var(--brand); color: #ffffff !important; border-color: var(--brand); font-weight: 800;
+}
 .hint { font-size: .8rem; color: var(--muted); margin: 0; }
 .photo-box {
   height: clamp(140px, 30dvh, 220px); border-radius: 12px; background: var(--bg);
