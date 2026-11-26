@@ -5,12 +5,15 @@ PWA (aplicación web instalable) para llevar el **stock de productos con fotos y
 ## Funciones
 
 - Alta / edición / eliminación de productos con **foto** (cámara o galería), nombre, categoría, talla (S, M, L, XL...), precio de costo, precio de venta, cantidad, stock mínimo y notas.
+- **Duplicar producto** con un toque (ideal para cargar la misma prenda en otra talla) y **compartir** ficha con foto por WhatsApp.
 - Botones **＋ / −** para ajustar el stock rápido (tocando el número se escribe la cantidad exacta).
-- Búsqueda, filtro por categoría, filtro de **stock bajo/agotado** y orden por nombre, precio o cantidad.
-- Resumen: cantidad de productos, unidades, **valor total a costo y a precio de venta**, ganancia por producto.
-- **100 % offline**: los datos y fotos se guardan en el propio dispositivo (IndexedDB). Las fotos se comprimen automáticamente.
-- **Respaldo** completo en un archivo `.json` (incluye fotos) para pasar a otro teléfono o no perder nada, e **importación** del respaldo.
-- Exportación a **planilla CSV** (se abre con Excel / Google Sheets).
+- **Venta rápida (🛒) y Catastro de ventas**: armá el carrito, calculá descuento y vuelto, registrá el medio de pago y descontá todo del stock automáticamente.
+- **Catastro**: historial completo de todo lo vendido con filtros por período (hoy, 7 días, mes, todo), medio de pago, cálculo de ganancia real y exportación a CSV.
+- Búsqueda, filtro por categoría, **filtro por talla**, filtro de **stock bajo/agotado** y orden por nombre, precio o cantidad.
+- **Ajuste masivo de precios (%)** por categoría o en todo el catálogo con redondeo automático.
+- **100 % offline**: los datos, fotos y ventas se guardan en el propio dispositivo (IndexedDB). Las fotos se comprimen automáticamente.
+- **Respaldo** completo en un archivo `.json` (incluye fotos y catastro de ventas) e **importación** del respaldo, más aviso si hace más de 7 días sin respaldar.
+- Exportación a **planilla CSV** (stock y catastro de ventas para Excel / Google Sheets).
 - Selección de moneda (ARS, USD, UYU, CLP, etc.). Modo oscuro automático.
 
 ## Publicar en GitHub Pages

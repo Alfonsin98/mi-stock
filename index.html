@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Mi Stock</title>
-  <meta name="description" content="Control de stock offline con fotos y precios">
+  <meta name="description" content="Control de stock y catastro de ventas offline con fotos y precios">
   <meta name="theme-color" content="#0f766e">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -22,33 +22,87 @@
     <button id="menuBtn" class="icon-btn" aria-label="Menú">⋮</button>
   </header>
 
-  <section class="summary" aria-label="Resumen">
-    <div><span class="label">Productos</span><strong id="sumItems">0</strong></div>
-    <div><span class="label">Unidades</span><strong id="sumUnits">0</strong></div>
-    <div><span class="label">Valor costo</span><strong id="sumCost">$0</strong></div>
-    <div><span class="label">Valor venta</span><strong id="sumValue">$0</strong></div>
-  </section>
+  <nav class="tabs" role="tablist" aria-label="Secciones">
+    <button id="tabStock" class="tab active" role="tab" aria-selected="true" data-tab="stock">📦 Stock</button>
+    <button id="tabSales" class="tab" role="tab" aria-selected="false" data-tab="sales">🧾 Catastro</button>
+  </nav>
 
-  <section class="toolbar">
-    <input id="search" type="search" placeholder="🔍 Buscar producto, talla, categoría..." autocomplete="off">
-    <div class="toolbar-row">
-      <select id="catFilter" aria-label="Categoría">
-        <option value="">Todas las categorías</option>
-      </select>
-      <select id="sort" aria-label="Ordenar">
-        <option value="recent">Recientes</option>
-        <option value="name">Nombre A-Z</option>
-        <option value="priceAsc">Precio ↑</option>
-        <option value="priceDesc">Precio ↓</option>
-        <option value="qtyAsc">Menos stock</option>
-        <option value="qtyDesc">Más stock</option>
-      </select>
-      <button id="lowFilter" class="chip" aria-pressed="false" title="Mostrar sólo stock bajo o agotado">⚠️ Bajo</button>
+  <!-- Vista: Stock -->
+  <div id="stockView">
+    <section class="summary" aria-label="Resumen de stock">
+      <div><span class="label">Productos</span><strong id="sumItems">0</strong></div>
+      <div><span class="label">Unidades</span><strong id="sumUnits">0</strong></div>
+      <div><span class="label">Valor costo</span><strong id="sumCost">$0</strong></div>
+      <div><span class="label">Valor venta</span><strong id="sumValue">$0</strong></div>
+    </section>
+
+    <section class="toolbar">
+      <input id="search" type="search" placeholder="🔍 Buscar producto, talla, categoría..." autocomplete="off">
+      <div class="toolbar-row">
+        <select id="catFilter" aria-label="Categoría">
+          <option value="">Todas las categorías</option>
+        </select>
+        <select id="sizeFilter" aria-label="Talla">
+          <option value="">Todas las tallas</option>
+        </select>
+        <select id="sort" aria-label="Ordenar">
+          <option value="recent">Recientes</option>
+          <option value="name">Nombre A-Z</option>
+          <option value="priceAsc">Precio ↑</option>
+          <option value="priceDesc">Precio ↓</option>
+          <option value="qtyAsc">Menos stock</option>
+          <option value="qtyDesc">Más stock</option>
+        </select>
+        <button id="lowFilter" class="chip" aria-pressed="false" title="Mostrar sólo stock bajo o agotado">⚠️ Bajo</button>
+      </div>
+    </section>
+
+    <main id="list" class="list"></main>
+    <p id="empty" class="empty" hidden></p>
+  </div>
+
+  <!-- Vista: Catastro de ventas -->
+  <div id="salesView" hidden>
+    <section class="summary" aria-label="Resumen de ventas">
+      <div><span class="label">Ventas</span><strong id="salesCount">0</strong></div>
+      <div><span class="label">Unidades</span><strong id="salesUnits">0</strong></div>
+      <div><span class="label">Total vendido</span><strong id="salesTotal">$0</strong></div>
+      <div><span class="label">Ganancia</span><strong id="salesProfit">$0</strong></div>
+    </section>
+
+    <section class="toolbar">
+      <input id="salesSearch" type="search" placeholder="🔍 Buscar producto, talla, pago o cliente..." autocomplete="off">
+      <div class="toolbar-row">
+        <select id="salesRange" aria-label="Período">
+          <option value="today">Hoy</option>
+          <option value="7d">Últimos 7 días</option>
+          <option value="month" selected>Este mes</option>
+          <option value="all">Todo</option>
+        </select>
+        <select id="salesPayFilter" aria-label="Medio de pago">
+          <option value="">Todos los pagos</option>
+          <option value="Efectivo">Efectivo</option>
+          <option value="Transferencia">Transferencia</option>
+          <option value="Tarjeta">Tarjeta</option>
+          <option value="Otro">Otro</option>
+        </select>
+        <button id="salesCsvBtn" class="chip" title="Exportar catastro de ventas a Excel/CSV">📊 CSV</button>
+      </div>
+    </section>
+
+    <section id="salesList" class="sales-list"></section>
+    <p id="salesEmpty" class="empty" hidden></p>
+  </div>
+
+  <!-- Barra de carrito para venta rápida -->
+  <div id="cartBar" class="cart-bar" hidden>
+    <div class="cart-bar-info">
+      <strong id="cartBarCount">0 u.</strong>
+      <span id="cartBarTotal">$0</span>
     </div>
-  </section>
-
-  <main id="list" class="list"></main>
-  <p id="empty" class="empty" hidden></p>
+    <button type="button" id="cartClearBtn" class="btn small ghost">Vaciar</button>
+    <button type="button" id="cartCheckoutBtn" class="btn small primary">🛒 Cobrar</button>
+  </div>
 
   <button id="addBtn" class="fab" aria-label="Agregar producto"><span class="fab-icon">＋</span><span class="fab-label">Agregar producto</span></button>
 
@@ -58,74 +112,149 @@
       <h2 id="editTitle" tabindex="-1" autofocus>Nuevo producto</h2>
 
       <div class="photo-col">
-      <div class="photo-box">
-        <img id="photoPreview" alt="Foto del producto" hidden>
-        <span id="photoPlaceholder">Sin foto</span>
-      </div>
-      <div class="photo-actions">
-        <label class="btn">📷 Cámara
-          <input type="file" accept="image/*" capture="environment" id="photoCamera" hidden>
-        </label>
-        <label class="btn">🖼️ Galería
-          <input type="file" accept="image/*" id="photoGallery" hidden>
-        </label>
-        <button type="button" id="photoRemove" class="btn ghost">Quitar</button>
-      </div>
+        <div class="photo-box">
+          <img id="photoPreview" alt="Foto del producto" hidden>
+          <span id="photoPlaceholder">Sin foto</span>
+        </div>
+        <div class="photo-actions">
+          <label class="btn">📷 Cámara
+            <input type="file" accept="image/*" capture="environment" id="photoCamera" hidden>
+          </label>
+          <label class="btn">🖼️ Galería
+            <input type="file" accept="image/*" id="photoGallery" hidden>
+          </label>
+          <button type="button" id="photoRemove" class="btn ghost">Quitar</button>
+        </div>
       </div>
 
       <div class="fields-col">
-      <label>Nombre *
-        <input name="name" required maxlength="120" autocomplete="off">
-      </label>
-      <div class="row">
-        <label>Categoría
-          <input name="category" list="catList" maxlength="60" autocomplete="off">
+        <label>Nombre *
+          <input name="name" required maxlength="120" autocomplete="off">
         </label>
-        <div class="field-size">
-          <label for="sizeInput">Talla</label>
-          <input name="size" id="sizeInput" list="sizeList" maxlength="30" placeholder="Ej: M" autocomplete="off">
-          <div class="size-chips" role="group" aria-label="Tallas por defecto">
-            <button type="button" class="size-btn" data-val="S">S</button>
-            <button type="button" class="size-btn" data-val="M">M</button>
-            <button type="button" class="size-btn" data-val="L">L</button>
-            <button type="button" class="size-btn" data-val="XL">XL</button>
+        <div class="row">
+          <label>Categoría
+            <input name="category" list="catList" maxlength="60" autocomplete="off">
+          </label>
+          <div class="field-size">
+            <label for="sizeInput">Talla</label>
+            <input name="size" id="sizeInput" list="sizeList" maxlength="30" placeholder="Ej: M" autocomplete="off">
+            <div class="size-chips" role="group" aria-label="Tallas por defecto">
+              <button type="button" class="size-btn" data-val="S">S</button>
+              <button type="button" class="size-btn" data-val="M">M</button>
+              <button type="button" class="size-btn" data-val="L">L</button>
+              <button type="button" class="size-btn" data-val="XL">XL</button>
+            </div>
+            <datalist id="sizeList">
+              <option value="S"></option>
+              <option value="M"></option>
+              <option value="L"></option>
+              <option value="XL"></option>
+            </datalist>
           </div>
-          <datalist id="sizeList">
-            <option value="S"></option>
-            <option value="M"></option>
-            <option value="L"></option>
-            <option value="XL"></option>
-          </datalist>
         </div>
-      </div>
-      <datalist id="catList"></datalist>
-      <div class="row">
-        <label>Precio costo
-          <input name="cost" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+        <datalist id="catList"></datalist>
+        <div class="row">
+          <label>Precio costo
+            <input name="cost" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+          </label>
+          <label>Precio venta *
+            <input name="price" type="number" inputmode="decimal" min="0" step="any" placeholder="0" required>
+          </label>
+        </div>
+        <p id="marginInfo" class="hint"></p>
+        <div class="row">
+          <label>Cantidad
+            <input name="qty" type="number" inputmode="numeric" min="0" step="1" value="0">
+          </label>
+          <label>Avisar si quedan ≤
+            <input name="minQty" type="number" inputmode="numeric" min="0" step="1" placeholder="(opcional)">
+          </label>
+        </div>
+        <label>Notas
+          <textarea name="notes" rows="2" maxlength="500"></textarea>
         </label>
-        <label>Precio venta *
-          <input name="price" type="number" inputmode="decimal" min="0" step="any" placeholder="0" required>
-        </label>
-      </div>
-      <p id="marginInfo" class="hint"></p>
-      <div class="row">
-        <label>Cantidad
-          <input name="qty" type="number" inputmode="numeric" min="0" step="1" value="0">
-        </label>
-        <label>Avisar si quedan ≤
-          <input name="minQty" type="number" inputmode="numeric" min="0" step="1" placeholder="(opcional)">
-        </label>
-      </div>
-      <label>Notas
-        <textarea name="notes" rows="2" maxlength="500"></textarea>
-      </label>
       </div>
 
       <div class="dialog-actions">
         <button type="button" id="deleteBtn" class="btn danger">Eliminar</button>
+        <button type="button" id="dupBtn" class="btn ghost" title="Crear copia para otra talla">📋 Duplicar</button>
+        <button type="button" id="shareProdBtn" class="btn ghost" title="Compartir producto">📤 Compartir</button>
         <span class="spacer"></span>
         <button type="button" id="cancelBtn" class="btn ghost">Cancelar</button>
         <button type="submit" class="btn primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Confirmar venta -->
+  <dialog id="checkoutDialog">
+    <form id="checkoutForm" class="menu" novalidate>
+      <h2 tabindex="-1" autofocus>Registrar venta</h2>
+      <div id="checkoutItems" class="checkout-items"></div>
+      <div class="row">
+        <label>Descuento ($)
+          <input id="checkoutDiscount" type="number" inputmode="decimal" min="0" step="any" placeholder="0">
+        </label>
+        <label>Medio de pago
+          <select id="checkoutPay">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Transferencia">Transferencia</option>
+            <option value="Tarjeta">Tarjeta</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </label>
+      </div>
+      <div class="row">
+        <label>Paga con ($)
+          <input id="checkoutPaid" type="number" inputmode="decimal" min="0" step="any" placeholder="(opcional)">
+        </label>
+        <div class="checkout-total-box">
+          <span class="label">Total a cobrar</span>
+          <strong id="checkoutTotal">$0</strong>
+          <span id="checkoutChange" class="hint" hidden></span>
+        </div>
+      </div>
+      <label>Cliente / Nota
+        <input id="checkoutNote" maxlength="140" placeholder="(opcional)" autocomplete="off">
+      </label>
+      <div class="dialog-actions">
+        <button type="button" id="checkoutCancel" class="btn ghost">Seguir eligiendo</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn primary">✅ Confirmar venta</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Ajuste masivo de precios -->
+  <dialog id="bulkPriceDialog">
+    <form id="bulkPriceForm" class="menu" novalidate>
+      <h2 tabindex="-1" autofocus>Ajustar precios (%)</h2>
+      <label>Categoría
+        <select id="bulkCat"></select>
+      </label>
+      <div class="row">
+        <label>Porcentaje (%)
+          <input id="bulkPct" type="number" inputmode="decimal" step="any" placeholder="Ej: 10 o -15" required>
+        </label>
+        <label>Redondear a
+          <select id="bulkRound">
+            <option value="0">Sin redondeo</option>
+            <option value="10">$10</option>
+            <option value="100" selected>$100</option>
+            <option value="500">$500</option>
+            <option value="1000">$1.000</option>
+          </select>
+        </label>
+      </div>
+      <label class="inline">
+        <input id="bulkCostToo" type="checkbox" style="width:auto">
+        <span>Aplicar también al precio de costo</span>
+      </label>
+      <p id="bulkPreview" class="hint"></p>
+      <div class="dialog-actions">
+        <button type="button" id="bulkCancel" class="btn ghost">Cancelar</button>
+        <span class="spacer"></span>
+        <button type="submit" class="btn primary">Aplicar</button>
       </div>
     </form>
   </dialog>
@@ -134,14 +263,16 @@
   <dialog id="menuDialog">
     <div class="menu">
       <h2 tabindex="-1" autofocus>Opciones</h2>
+      <p id="backupBanner" class="hint warn-box" hidden></p>
       <button id="installBtn" class="btn primary" hidden>⬇️ Instalar app</button>
       <p id="iosHint" class="hint" hidden>En iPhone: tocá <b>Compartir</b> → <b>Agregar a inicio</b> para instalarla.</p>
-      <button id="exportBtn" class="btn">💾 Descargar respaldo (con fotos)</button>
+      <button id="exportBtn" class="btn">💾 Descargar respaldo (con fotos y ventas)</button>
       <button id="shareBtn" class="btn" hidden>📤 Compartir respaldo</button>
       <label class="btn">📥 Importar respaldo
         <input type="file" id="importInput" accept="application/json,.json" hidden>
       </label>
-      <button id="csvBtn" class="btn">📊 Exportar planilla (CSV/Excel)</button>
+      <button id="csvBtn" class="btn">📊 Exportar stock (CSV/Excel)</button>
+      <button id="bulkPriceBtn" class="btn">💲 Ajustar precios (%)</button>
       <button id="updateBtn" class="btn">🔄 Buscar actualización</button>
       <label class="inline">Moneda
         <select id="currencySel">
@@ -178,4 +309,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
